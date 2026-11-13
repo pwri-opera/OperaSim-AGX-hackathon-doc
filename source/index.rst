@@ -47,6 +47,7 @@ OperaSim-AGX ハッカソン セットアップガイド
    simulator-operation
    linux-middleware
    sample-run
+   sample-implementation
    development
    troubleshooting
    building-docs
@@ -72,6 +73,8 @@ OperaSim-AGX ハッカソン セットアップガイド
      - ホストへの ROS 2 の導入、ワークスペースのビルド、endpoint の起動、IP アドレスとファイアウォールの確認
    * - :doc:`sample-run`
      - Docker 環境の準備と、Windows と接続してサンプルシナリオを動かす通し手順
+   * - :doc:`sample-implementation`
+     - サンプルのパッケージ構成、起動と状態遷移、Nav2・荷台制御の流れ、改造の入口
    * - :doc:`development`
      - ホスト上の ``~/opera-ws`` での ROS 2 開発、トピックの確認、非常停止、シミュレーション時計の注意点
    * - :doc:`troubleshooting`
