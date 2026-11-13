@@ -4,6 +4,21 @@
 
 この章は、このマニュアル自体を HTML にビルドする方法を説明します。マニュアルを更新する人向けの内容で、ハッカソンの参加者が読む必要はありません。Python **3.11 以上** が必要です（Sphinx 8.2 系の要件です）。
 
+図の描画に必要なもの
+----------------------
+
+構成図と状態遷移図は、Sphinx 標準の ``sphinx.ext.graphviz`` 拡張で SVG に描画します。Python の依存パッケージに加え、Graphviz の ``dot`` コマンドと日本語フォントが必要です。Ubuntu では次のようにインストールします。
+
+.. code-block:: bash
+
+   sudo apt-get update
+   sudo apt-get install -y graphviz fonts-noto-cjk
+   dot -V
+
+macOS と Windows でも Graphviz をインストールし、 ``dot`` に PATH を通してください。図では ``Noto Sans CJK JP`` を指定しています。同フォントを用意するか、日本語を表示できるフォントへ図の ``fontname`` を変更してください。SVG を別の端末で閲覧するときも、日本語フォントが必要です。
+
+Read the Docs では、 ``.readthedocs.yaml`` の ``build.apt_packages`` に Graphviz と日本語フォントを指定しているため、ビルド時にインストールされます。拡張の仕様は `Sphinx の Graphviz ドキュメント <https://www.sphinx-doc.org/en/master/usage/extensions/graphviz.html>`_ を参照してください。
+
 Linux と macOS の場合
 -----------------------
 

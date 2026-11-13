@@ -13,25 +13,47 @@
 
 Task Manager は「何を、どの順番で行うか」を決めます。各建機のノードは、その指示を関節角度や移動目標へ変換し、作業が終わったことを通知します。Unity は指令を受けて物理シミュレーションを進め、関節角度や位置を ROS 側へ返します。
 
-.. code-block:: text
+.. graphviz::
+   :caption: サンプルの構成と通信の役割
+   :alt: Linux上のTask ManagerがZX200・IC120・荷台制御に指示し、ROS-TCP endpointを介してWindowsのUnityと通信する構成図
+   :align: center
 
-   Linux PC
-   Task Manager
-     |-- 掘削開始 --> ZX200 状態機械 -- front_cmd --> ROS-TCP endpoint
-     |                    |                              ||
-     |<-- 掘削・積込完了 --|                              || TCP
-     |                                                   ||
-     |-- 運搬・帰還 --> IC120 自律走行 --> Nav2             ||
-     |                    ^                |              ||
-     |                    |-- 移動結果 ----|              ||
-     |<-- 到着通知 -------|                |-- cmd_vel -->||
-     |                                                   ||
-     |-- 荷台上げ・下げ --> 荷台制御 -- rot_dump_cmd ------>||
-     |<-- 荷台動作完了 ----|                              ||
-                                                         ||
-   Windows PC                                            ||
-   Unity / AGX <=========================================>>
-     |-- joint_states、odom_pose、global_pose、/clock --> ROS 側
+   digraph sample_architecture {
+       graph [rankdir=TB, bgcolor="white", nodesep=0.4, ranksep=0.6];
+       node [shape=box, style="rounded,filled", fillcolor="#eff6ff",
+             fontname="Noto Sans CJK JP", fontsize=12];
+       edge [fontname="Noto Sans CJK JP", fontsize=10, color="#475569"];
+
+       subgraph cluster_linux {
+           label="Linux PC / ROS 2";
+           fontname="Noto Sans CJK JP";
+           color="#94a3b8";
+           manager [label="Task Manager\n工程管理"];
+           zx200 [label="ZX200 状態機械\n掘削・積み込み"];
+           ic120 [label="IC120 自律走行\nwaypoint 管理"];
+           dump [label="荷台制御\n上昇・下降"];
+           nav2 [label="Nav2\n経路計画・速度指令"];
+           endpoint [label="ROS-TCP endpoint", fillcolor="#e0f2fe"];
+           {rank=same; zx200; ic120; dump;}
+           manager -> zx200 [dir=both, label="開始 / 完了"];
+           manager -> ic120 [dir=both, label="運搬・帰還 / 到着"];
+           manager -> dump [dir=both, label="上げ・下げ / 完了"];
+           ic120 -> nav2 [dir=both, label="goal / 結果"];
+           zx200 -> endpoint [dir=both, label="front_cmd /\njoint_states"];
+           dump -> endpoint [dir=both, label="rot_dump_cmd /\njoint_states"];
+           nav2 -> endpoint [label="速度指令"];
+           endpoint -> ic120 [style=dashed, constraint=false,
+                              label="現在位置"];
+       }
+       subgraph cluster_windows {
+           label="Windows PC";
+           labelloc="b";
+           fontname="Noto Sans CJK JP";
+           color="#94a3b8";
+           unity [label="Unity / AGX\n物理シミュレーション", fillcolor="#ecfdf5"];
+       }
+       endpoint -> unity [dir=both, label="TCP :10000\n指令 / フィードバック・clock"];
+   }
 
 これは役割の関係を示した図です。速度指令の実際のトピック名は、launch の remapping で変わります。後述の「名前空間と接続を読むときの注意」も確認してください。
 
@@ -190,10 +212,39 @@ ZX200：目標姿勢を順に実行する
 
 ``ZX200StateMachine`` は ``/start_dig`` を受けると、次の順に状態を切り替えます。
 
-.. code-block:: text
+.. graphviz::
+   :caption: ZX200 の掘削・積み込みシーケンス
+   :alt: IDLEから掘削、持ち上げ、旋回、積み込み、戻り姿勢を経てFINISHへ進むZX200の状態遷移図
+   :align: center
 
-   IDLE -> REACH -> DIG -> DRAG -> LIFT -> SWING_TO_RELEASE
-        -> RELEASE_1 -> RELEASE_2 -> RETURN_1 -> RETURN_2 -> FINISH
+   digraph zx200_sequence {
+       graph [rankdir=TB, bgcolor="white", nodesep=0.25, ranksep=0.45];
+       node [shape=box, style="rounded,filled", fillcolor="#eff6ff",
+             fontname="Noto Sans CJK JP", fontsize=11];
+       edge [fontname="Noto Sans CJK JP", fontsize=10, color="#475569"];
+       idle [label="IDLE\n待機"];
+       reach [label="REACH\n掘削開始姿勢"];
+       dig [label="DIG\n刃先貫入"];
+       drag [label="DRAG\n引き寄せ"];
+       lift [label="LIFT\n持ち上げ"];
+       swing [label="SWING_TO_RELEASE\n積込先へ旋回"];
+       release1 [label="RELEASE_1\nブーム下降・アーム伸展"];
+       release2 [label="RELEASE_2\nバケットを開く"];
+       return1 [label="RETURN_1\n戻りの旋回姿勢"];
+       return2 [label="RETURN_2\n戻り旋回"];
+       finish [label="FINISH\n待機姿勢", fillcolor="#ecfdf5"];
+       {rank=same; idle; reach; dig;}
+       {rank=same; swing; lift; drag;}
+       {rank=same; release1; release2; return1;}
+       {rank=same; finish; return2;}
+       idle -> reach [label="start_dig"];
+       reach -> dig -> drag;
+       swing -> lift -> drag [dir=back];
+       swing -> release1 -> release2 -> return1 -> return2;
+       finish -> return2 [dir=back];
+   }
+
+図の状態間は、開始指示を除き、目標姿勢への到達と到達後の待ち時間を条件に進みます。 ``FINISH`` 後の反復判定と ``/end_dig`` の通知は後述します。
 
 ``target_angles`` に各状態の目標角度があり、配列の順序は ``joint_names`` の ``swing_joint, boom_joint, arm_joint, bucket_joint`` と対応します。 ``transition_to()`` は前の指令値と次の目標値から動作時間を計算し、 ``timer_callback()`` は 0.1 秒周期で S 字状に補間した位置指令を ``/zx200/front_cmd`` へ送ります。
 
@@ -357,10 +408,29 @@ Nav2 が goal を受理すると、結果を受け取るコールバックを登
 
 ``task_manager`` パッケージ内の ``ReleaseController`` は、走行とは独立して荷台を制御します。既定の状態遷移は次のとおりです。
 
-.. code-block:: text
+.. graphviz::
+   :caption: 荷台制御の状態遷移
+   :alt: 上昇指示、安定待ち、上昇、保持、下降指示待ち、下降を経て待機へ戻る荷台制御の状態遷移図
+   :align: center
 
-   IDLE -- tilt_up_cmd --> PRE_WAIT -> RAISING -> RAISED_WAIT
-        -> WAITING_DOWN_COMMAND -- tilt_down_cmd --> LOWERING -> IDLE
+   digraph dump_sequence {
+       graph [rankdir=TB, bgcolor="white", nodesep=0.4, ranksep=0.5];
+       node [shape=box, style="rounded,filled", fillcolor="#eff6ff",
+             fontname="Noto Sans CJK JP", fontsize=11];
+       edge [fontname="Noto Sans CJK JP", fontsize=10, color="#475569"];
+       idle [label="IDLE\n待機", fillcolor="#ecfdf5"];
+       pre [label="PRE_WAIT\n車体の安定待ち"];
+       raising [label="RAISING\n荷台上昇"];
+       raised [label="RAISED_WAIT\n上昇位置を保持"];
+       waiting [label="WAITING_DOWN_COMMAND\n下降指示待ち"];
+       lowering [label="LOWERING\n荷台下降"];
+       idle -> pre [label="tilt_up_cmd"];
+       pre -> raising [label="待ち時間経過"];
+       raising -> raised [label="実関節位置が上昇目標に到達"];
+       raised -> waiting [label="保持時間経過 / dump_completed"];
+       waiting -> lowering [label="tilt_down_cmd"];
+       lowering -> idle [label="実関節位置が下降目標に到達\n/ tilt_down_completed"];
+   }
 
 上昇指令を受けると既定で 2 秒待ち、 ``/ic120_0/rot_dump_cmd`` へ ``dump_joint`` の位置指令を送ります。0.1 秒ごとに指令値を 0.02 ずつ変化させ、上昇目標は 1.0、下降目標は 0.0 です。これらはパラメータで変更できます。
 

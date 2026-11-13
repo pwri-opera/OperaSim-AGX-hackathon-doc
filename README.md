@@ -8,7 +8,7 @@ Windows の Unity シミュレータと Linux の ROS 2 Humble ミドルウェ�
 
 ## ローカルビルド
 
-Python 3.11 以上を使います。
+Python 3.11 以上と、図の描画用のGraphviz・日本語フォントを使います。Ubuntuでは、先に `sudo apt-get install -y graphviz fonts-noto-cjk` を実行してください。他のOSでの準備は[ビルド方法](source/building-docs.rst)を参照してください。
 
 ```bash
 python3 -m venv .venv-docs
