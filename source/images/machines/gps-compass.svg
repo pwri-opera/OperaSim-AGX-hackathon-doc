@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="270" viewBox="0 0 600 270" role="img" aria-labelledby="title desc">
+  <title id="title">GPSコンパスの原理（上面図）</title>
+  <desc id="desc">アンテナを前後に配置した例。後方アンテナから前方アンテナへの向きを、真北から時計回りに測った角が車体方位。</desc>
+  <rect width="600" height="270" rx="12" fill="#f8fafc"/>
+  <g transform="translate(203 192) rotate(52)">
+    <rect x="-38" y="-122" width="76" height="156" rx="14" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+    <path d="M0 0V-177" stroke="#075985" stroke-width="4"/><path d="M0 -185L-7 -169H7Z" fill="#075985"/>
+    <g fill="#fff" stroke="#075985" stroke-width="4"><circle r="8"/><circle cy="-95" r="8"/></g>
+  </g>
+  <path d="M203 178V52" stroke="#334155" stroke-width="2" stroke-dasharray="6 4"/><path d="M203 43L197 56H209Z" fill="#334155"/>
+  <path d="M203 135A57 57 0 0 1 248 157" fill="none" stroke="#b45309" stroke-width="3"/><path d="M249 158L240 153L247 149Z" fill="#b45309"/>
+  <g font-family="sans-serif" font-size="18" fill="#0f172a">
+    <text x="183" y="33">真北</text><text x="251" y="103" fill="#92400e">方位角</text><text x="363" y="81" fill="#075985">車体前方</text>
+    <path d="M289 136L315 157H337M194 196L164 212H133" fill="none" stroke="#475569"/>
+    <text x="345" y="165">前方アンテナ</text><text x="22" y="220">後方アンテナ</text>
+  </g>
+</svg>
