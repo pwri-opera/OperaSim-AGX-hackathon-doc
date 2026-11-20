@@ -4,14 +4,12 @@ Linux 側ミドルウェア：ROS 2 環境の構築と起動
 
 この章では、Ubuntu 22.04 に ROS 2 Humble を直接インストールし、ホスト上のワークスペースでミドルウェアをビルドして起動します。以降のコマンドは Linux PC の Bash で実行します。
 
-一連の動きを手軽にテストしたい場合は、Docker を使う :doc:`sample-run` を参照してください。
-
 ROS 2 と開発ツールの準備
 --------------------------
 
 Ubuntu 22.04 を用意し、 `ROS 2 Humble の Ubuntu 向けインストール手順 <https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html>`_ に従って apt リポジトリを設定し、 ``ros-humble-desktop`` をインストールしてください。
 
-続いて開発ツールと依存パッケージをインストールします。ここで使うパッケージ、後述するクローン先とブランチ、ビルド対象は、シミュレータ本体の ``hackathon`` ブランチにある ``docker-hackathon-sample/Dockerfile`` をもとにしています。
+続いて、ミドルウェアのビルドと実行に必要な開発ツールと依存パッケージを Linux PC にインストールします。
 
 .. code-block:: bash
 
@@ -46,7 +44,7 @@ Ubuntu 22.04 を用意し、 `ROS 2 Humble の Ubuntu 向けインストール�
    git clone -b main https://github.com/pwri-opera/gnss_localizer_ros2.git
 
 
-シミュレータ本体から、サンプルの経路データをワークスペース直下にコピーします。まだ本体を取得していない場合は、下の ``git clone`` を実行してください。すでに ``hackathon`` ブランチを取得済みなら、クローンは不要です。保存場所が異なる場合は、コピー元のパスを置き換えてください。
+シミュレータ本体の ``hackathon`` ブランチから、サンプルが読む ``waypoints.csv`` をワークスペース直下にコピーします。下のディレクトリから使うのは CSV ファイルだけです。すでに本体を取得済みなら ``git clone`` は不要です。保存場所が異なる場合は、コピー元のパスを置き換えてください。
 
 .. code-block:: bash
 
@@ -96,9 +94,9 @@ Windows 側で ROS 接続を行い、Sim Speed を x1.0 にして Start Simulati
    source "$HOME/opera-ws/install/setup.bash"
    ros2 launch task_manager hackathon_sample.launch.py
 
-zx200 が掘削・積み込みを行い、そのあと ic120 が運搬・排土・帰還を行います。Docker での通し実行と進行の確認方法は :doc:`sample-run` 、コードの編集と再ビルドは :doc:`development` を参照してください。
+ZX200 が掘削・積み込みを行い、そのあと IC120 が運搬・排土・帰還を行います。コードの編集と再ビルドは :doc:`development` を参照してください。
 
-ホスト上と Docker の endpoint を同時に起動すると、TCP 10000 番ポートが競合します。切り替えるときは、先に起動中の endpoint を ``Ctrl+C`` で停止してください。
+TCP 10000 番ポートが使用中の場合は、先に起動している endpoint がないか確認してください。
 
 .. _check-ros-tcp-connection:
 
@@ -121,7 +119,7 @@ Linux 側の IP アドレスを確認します（ホスト側）。
    # または
    hostname -I
 
-NIC が複数ある場合は、 **Windows PC と同じ LAN につながっている側の IPv4 アドレス** を選びます。 ``127.0.0.1`` 、 ``docker0`` などのブリッジ、VPN 側のアドレスが正しいとは限りません。Windows 側に出るときの経路は、次のコマンドで確認できます（例として、Windows 側の IP アドレスを ``192.168.10.20`` とします）。
+ネットワークインターフェースが複数ある場合は、 **Windows PC と同じ LAN につながっている側の IPv4 アドレス** を選びます。ループバックアドレス（ ``127.0.0.1`` ）は接続先に使えません。Windows PC への経路は、次のコマンドで確認できます（例では Windows 側の IP アドレスを ``192.168.10.20`` とします）。
 
 .. code-block:: bash
 
