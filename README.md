@@ -1,10 +1,10 @@
 # OperaSim-AGX ハッカソン セットアップガイド
 
-Windows の Unity シミュレータと Linux の ROS 2 Humble ミドルウェアを使う、ハッカソン参加者向けの日本語マニュアルです。Linux 側は Ubuntu 22.04 に ROS 2 を直接導入します。一連の動きを手軽にテストする Docker 環境は [sample-run](source/sample-run.rst) で案内しています。
+Windows の Unity シミュレータと Linux の ROS 2 Humble ミドルウェアを使う、ハッカソン参加者向けのマニュアルです。コードを開発する場合は、Ubuntu 22.04 に ROS 2 をインストールします。まず動きを試す場合は、ホストに ROS 2 を入れずに [Docker でサンプルを実行できます](source/sample-run.rst)。
 
 - [マニュアルの目次](source/index.rst)
 - [ビルド方法](source/building-docs.rst)
-- [シミュレータ本体](https://github.com/pwri-opera/OperaSim-AGX)
+- [シミュレータ本体（hackathon ブランチ）](https://github.com/pwri-opera/OperaSim-AGX/tree/hackathon)
 
 ## ローカルビルド
 
@@ -24,4 +24,4 @@ python3 -m venv .venv-docs
 
 Read the Docs でこのリポジトリをインポートし、デフォルトブランチを `main`、言語を日本語に設定すると、`.readthedocs.yaml` に従ってビルドできます。公開 URL は Read the Docs 側でのプロジェクト作成後に確定します。
 
-原稿は OperaSim-AGX のハッカソン向け `docs/` から収録しています。シミュレータとミドルウェアを接続した実機での動作確認は未実施です。
+原稿は OperaSim-AGX のハッカソン向け `docs/` をもとにしています。Windows のシミュレータと Linux のミドルウェアを実際に接続する動作検証は行っていません。

@@ -54,7 +54,7 @@ Linux PC のターミナルで、環境を読み込んでから実行します�
 - ``/zx200/odom_pose`` 、 ``/zx200/global_pose`` （ ``nav_msgs/msg/Odometry`` ）
 - ``/clock`` （シミュレーション時計。後述します）
 
-指令用のトピックの末尾には、 ``front_cmd`` 、 ``track_cmd`` 、 ``cmd_vel`` 、 ``rot_dump_cmd`` 、 ``track_volume_cmd`` 、 ``blade_cmd`` 、 ``emg_stop_cmd`` があります。機体によって、使えるトピックは異なります。対応関係は、ルートの README の表を参照してください。
+指令用のトピックの末尾には、 ``front_cmd`` 、 ``track_cmd`` 、 ``cmd_vel`` 、 ``rot_dump_cmd`` 、 ``track_volume_cmd`` 、 ``blade_cmd`` 、 ``emg_stop_cmd`` があります。機体と制御モードごとの対応は、 `OperaSim-AGX 本体の README にある対応表 <https://github.com/pwri-opera/OperaSim-AGX/blob/hackathon/README.md#指令値の設定>`_ を参照してください。実際のトピック名とメッセージ型は、この章の確認コマンドで調べてください。
 
 フィードバックを読むだけのノードの例
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -135,5 +135,5 @@ Linux PC のターミナルで、環境を読み込んでから実行します�
 ----------------------
 
 - **機体名とトピック名は固定ではありません。** GameObject 名、プレハブ、セーブデータによって、 ``/zx200`` や ``/ic120_0`` などの名前は変わります。コードに直接書き込まず、起動時に ``ros2 topic list`` で調べるか、設定として外から渡してください。
-- **制御モードは、指令の control_type だけでは切り替わりません。** ``com3_msgs/msg/JointCmd`` の ``control_type`` フィールドは、メッセージ上の種別です。実際にどの指令の配列が使われるかは、機体側の Movement Control Type と Control Type の設定で決まります。機体の設定は、Unity のインスペクタで行います（ルートの README の「オプション」を参照してください）。
+- **制御モードは、指令の control_type だけでは切り替わりません。** ``com3_msgs/msg/JointCmd`` の ``control_type`` フィールドは、メッセージ上の種別です。どの指令の配列を使うかは、機体側の Movement Control Type と Control Type の設定で決まります。詳しくは `OperaSim-AGX 本体の README「指令値の設定」 <https://github.com/pwri-opera/OperaSim-AGX/blob/hackathon/README.md#指令値の設定>`_ のインスペクタ操作を参照してください。
 - **メッセージの型は** ``com3_msgs`` **です。** Unity 側が使うのは、 ``com3_msgs/msg/JointCmd`` や ``com3_msgs/msg/FluidPressureArray`` などです。 ``com3_ros`` リポジトリはメッセージ定義の提供元ですが、トピック上では ``com3_msgs/...`` という型名で流れます。フィールドは、 ``ros2 interface show com3_msgs/msg/JointCmd`` で確認できます。

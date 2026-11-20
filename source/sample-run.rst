@@ -15,13 +15,13 @@ Docker でサンプルシナリオを通し実行
 
 - :doc:`windows-setup` のセットアップが終わっていること。ホストに ROS 2 を導入する :doc:`linux-middleware` の作業は、この Docker でのテストには不要です。
 - Windows PC と Linux PC が、同じ LAN にあること
-- Linux 側に Ubuntu 22.04 と X11 の GUI 環境があること
+- Linux 側に X11 の GUI 環境があること
 - ホスト側の endpoint が動いていないこと（TCP 10000 番ポートの競合を避けます）
 
 ホスト側の準備
 ----------------
 
-- **OS**：Ubuntu 22.04 を推奨します。
+- **ホスト OS**：Ubuntu 22.04 を推奨します。この章のコマンドは Ubuntu 22.04 を前提としています。コンテナ内の Ubuntu 22.04 はベースイメージに含まれています。
 - **Docker**：公式の Ubuntu 向けインストールガイド（ `Docker Engine install on Ubuntu <https://docs.docker.com/engine/install/ubuntu/>`_ ）に従ってインストールし、 ``docker version`` と ``docker info`` で動作を確認します。
 - **git と python3-venv** （リポジトリのクローンと rocker のインストールに必要です）：
 
@@ -30,13 +30,13 @@ Docker でサンプルシナリオを通し実行
      sudo apt-get update
      sudo apt-get install -y git python3-venv
 
-- **リポジトリのクローン**： ``docker-hackathon-sample/`` は、このリポジトリの中にあります。すでにクローン済みの場合は、この手順を飛ばしてください。
+- **シミュレータ本体の取得**： ``docker-hackathon-sample/`` は、シミュレータ本体の ``hackathon`` ブランチにあります。このブランチを取得済みの場合は、クローンし直す必要はありません。
 
   .. code-block:: bash
 
-     git clone https://github.com/pwri-opera/OperaSim-AGX.git "$HOME/OperaSim-AGX"
+     git clone -b hackathon https://github.com/pwri-opera/OperaSim-AGX.git "$HOME/OperaSim-AGX"
 
-  ハッカソンで別の URL が指定されている場合は、そちらを使い、以降の手順ではクローン先のパスを読み替えてください。
+  ハッカソン運営から別の URL やブランチを指定された場合は、そちらを使ってください。クローン先が異なる場合は、以降の手順でパスを置き換えてください。
 
 - **sudo なしで docker を使えるようにする**：起動スクリプトは ``docker`` を直接呼び出します。公式の Linux 向け設定手順（ `Docker Engine post-installation steps <https://docs.docker.com/engine/install/linux-postinstall/>`_ ）に従って、自分のユーザーを ``docker`` グループに追加してください。 ``docker`` グループは、実質的に root と同等の権限を持ちます。ソケットの ``chmod`` ではなく、グループの設定を使ってください。
 - **rocker**：GUI（X11）をコンテナに渡すために使います。公式は ``pip`` でのインストールを案内しています。仮想環境にインストールして、PATH を通すのが確実です。
@@ -92,8 +92,12 @@ Dockerfile がクローンするリポジトリとブランチは、次のとお
 
 ``colcon build --symlink-install --packages-up-to`` で、依存パッケージもまとめてビルドされます。 ``waypoints.csv`` は、イメージ内の ``/ws/waypoints.csv`` にコピーされます。
 
-コンテナの起動
-----------------
+手順
+------
+
+**1. コンテナを起動する（Linux ホストのターミナル）**
+
+コンテナがすでに起動している場合は、この手順を飛ばします。起動状況は ``docker ps`` で確認できます。
 
 .. code-block:: bash
 
@@ -112,26 +116,9 @@ Dockerfile がクローンするリポジトリとブランチは、次のとお
 
    ``start.sh`` と ``start-nvidia.sh`` は、 ``/ws`` を **バインドマウントしていません** 。コンテナ内の ``/ws`` は、イメージに入っている内容そのままです。コンテナを作り直すと、 ``/ws`` に加えた変更は失われます。自分のコードを開発するときは、 :doc:`linux-middleware` と :doc:`development` のホスト上のワークスペースを使ってください。
 
-別のターミナルから同じコンテナに入るには、次のコマンドを使います。
+**2. endpoint を起動する（コンテナ内のターミナル 1）**
 
-.. code-block:: bash
-
-   ./enter.sh
-   # 中身は docker exec -ti opera-hackathon-sample /ros_entrypoint.sh /bin/bash
-
-手順
-------
-
-**1. Linux：コンテナを起動します** （Linux のホストのシェル）
-
-.. code-block:: bash
-
-   cd "$HOME/OperaSim-AGX/docker-hackathon-sample"
-   ./start.sh        # CPU の場合。GPU を使う場合は ./start-nvidia.sh
-
-コンテナがすでに起動している場合は、この手順は不要です（ ``docker ps`` で確認できます）。
-
-**2. Linux：endpoint を起動します** （ ``./start.sh`` で開いたコンテナ内のシェル。これをターミナル 1 とします）
+手順 1 で開いたコンテナのシェルを使います。別のホスト端末からコンテナに入る場合は、 ``docker-hackathon-sample/`` で ``./enter.sh`` を実行してください。
 
 .. code-block:: bash
 
@@ -153,7 +140,11 @@ Dockerfile がクローンするリポジトリとブランチは、次のとお
 
 **4. Windows：Sim Speed を x1.0 にして、Start Simulation を押します**
 
-**Start Simulation** を押す前に、まず **Sim Speed** を **x1.0** にします。Sim Speed は Start Simulation を押したときに適用され、開始後に変更することはできません。変えたいときは、シミュレーションを停止してリセットし、次の実行で選び直します。実行中にスコアを見たい場合は、 **Total Score** も開始前にオンにします。カメラを選びたい場合も、このセットアップ画面のうちに **Camera Selection** で選んでおきます（開始後は、このメニューは消えます。実行中は、 **C** キーでカメラを順番に切り替えられます）。そのあと、 **Start Simulation** を押します。内部では ``GlobalVariables.changeActionMode(3)`` が呼ばれ、AGX の物理ステップが有効になります。Unity のログに ``Physics Start!`` が出ていることを確認してください。出ていなければ、物理シミュレーションは始まっていません。
+**Sim Speed** を **x1.0** に設定します。速度の設定は開始時に適用され、実行中は変更できません。変更するには、停止とリセットを行い、次の実行で選び直します。
+
+スコアを見たい場合は、開始前に **Total Score** をオンにします。使うカメラを選びたい場合も、開始前に **Camera Selection** を開きます。このメニューは開始後に消えますが、 **C** キーでカメラを順番に切り替えられます。
+
+**Start Simulation** を押します。 ``GlobalVariables.changeActionMode(3)`` が呼ばれ、AGX の物理ステップが有効になります。Unity のログに ``Physics Start!`` が出たことを確認してください。このログが出ていなければ、物理シミュレーションは始まっていません。
 
 **5. Windows と Linux がつながっていることを確認します** （コンテナ内の別のシェル）
 
@@ -253,6 +244,6 @@ Windows 側の接続とフィードバックを確認してから、起動して
 つまずきやすい点
 ------------------
 
-- **endpoint は起動したのに、Windows から接続できない**：Linux 側の IP アドレスの指定ミス、ファイアウォール、endpoint が起動していない、の順に確認します。 ``ros2 topic list`` にトピックが表示されていても、それは ROS 側の登録を示すだけで、Windows との通信が成立している証拠にはなりません。
+- **Windows から endpoint に接続できない**： :ref:`check-ros-tcp-connection` の手順で、Linux 側の待ち受け、接続先の IP アドレス、ファイアウォールを確認します。 ``ros2 topic list`` にトピックが表示されても、Windows との通信が成立したとは限りません。
 - **トピックは見えるのに、建機が動かない**：Unity 側で ``Physics Start!`` が出ているか、Sim Speed の設定、非常停止の状態（ ``/<機体名>/emg_stop_cmd`` ）を確認します。
 - **ic120 が最初から動かない**：タスクの順番上、先に zx200 が掘削を行います。数分待ってから判断してください。

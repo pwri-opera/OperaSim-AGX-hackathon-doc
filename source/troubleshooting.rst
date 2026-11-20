@@ -20,9 +20,6 @@
    * - 別の PC にコピーしたライセンスが使えない
      - ``agx.lfx`` は、アクティベーションした PC のハードウェアに紐付いている
      - PC ごとに、それぞれアクティベーションします。ファイルをコピーしても使えません。
-   * - 配布バイナリで、HUD の IP アドレス入力欄を操作できない
-     - 自動接続の間は、入力欄が無効になる（ ``HasConnectionThread`` が true になる）仕様になっている
-     - 運営に「Connect On Start が無効、Show HUD が有効」のビルドを依頼するか、ソースビルドで自分用のプレイヤーを作ります（ :doc:`windows-setup` を参照してください）。
 
 バージョンと DLL
 ------------------
@@ -55,8 +52,11 @@ ROS 接続と環境
      - 確認するポイント
      - 対処
    * - Windows から endpoint に接続できない
-     - Windows 側の PowerShell で、 ``$LinuxIp = "192.168.10.10"`` （例です。実際の IP アドレスに置き換えます）としてから ``Test-NetConnection -ComputerName $LinuxIp -Port 10000`` を実行した結果。Linux の **ホスト側** で ``ss -tln | grep 10000`` を実行して、待ち受けているかどうか。endpoint が起動しているかどうか
-     - IP アドレスの指定ミス、ファイアウォール、endpoint が起動していない、の順に確認します。 ``ROS_IP=0.0.0.0`` は待ち受け側の設定であり、接続先の IP アドレスではありません。確認の方法は、 :doc:`linux-middleware` を参照してください。
+     - Linux ホストで endpoint が TCP 10000 番ポートを待ち受けているか、Windows からそのポートに接続できるか
+     - まず Linux 側で待ち受けを確認します。待ち受けているのに Windows から接続できない場合は、接続先 IP アドレスとファイアウォールを確認します。 ``0.0.0.0`` は接続先に使えません。コマンドと結果の見方は :ref:`check-ros-tcp-connection` を参照してください。
+   * - 配布バイナリで HUD の IP アドレス入力欄を操作できない
+     - 自動接続設定が有効か。接続処理中（ ``HasConnectionThread`` が ``true`` の間）は入力欄が無効になります
+     - 運営に **Connect On Start** が無効で **Show HUD** が有効なビルドを依頼するか、自分でビルドします（ :doc:`windows-setup` を参照）。
    * - ``ros2 topic`` が ``com3_msgs`` 関連のエラーになる
      - ``com3_msgs`` をビルド済みか、ワークスペースの環境を読み込んでいるか
      - コマンドを実行するターミナルで、 ``source /opt/ros/humble/setup.bash`` と ``source "$HOME/opera-ws/install/setup.bash"`` を実行します。Docker のテストでは、同じコンテナ内で ``source /ws/install/setup.bash`` を実行します。

@@ -39,6 +39,8 @@ AGX Dynamics for Unity の公式ページは `https://www.algoryx.se/agx-unity/ 
 - **Unity Editor で Play する場合**：エディタの License Manager でアクティベーションします。
 - **ビルド済みプレイヤー（配布バイナリを含む）を実行する場合**：スタンドアロン用のアクティベーションを行います。
 
+.. _agx-editor-activation:
+
 エディタでのアクティベーション
 --------------------------------
 
@@ -69,7 +71,7 @@ Unity Editor でプロジェクトを開いた状態で、次の手順を行い�
 - `AGXUnity ドキュメント Licensing 節 <https://us.download.algoryx.se/AGXUnity/documentation/current/getting_started.html#licensing>`_
 - `AGX Dynamics ユーザーマニュアル License System <https://www.algoryx.se/documentation/complete/agx/tags/latest/doc/UserManual/source/license_system.html>`_
 
-どちらのツールも、手順の流れは共通です。シミュレータ PC をインターネットに接続した状態でツールを起動し、ベンダーから受け取ったライセンス ID とアクティベーション用パスワードを入力して、出力先を指定すると、 ``agx.lfx`` が生成されます。コマンドラインツールの正確な起動方法とオプションは、ベンダーの配布物に付属する ``--help`` などの公式の案内に従ってください。このマニュアルでは、実行ファイル名やオプションは示しません。
+どちらのツールも手順は同じです。インターネットに接続したシミュレータ PC でツールを起動します。ベンダーから受け取ったライセンス ID とアクティベーション用パスワードを入力し、出力先を指定すると、 ``agx.lfx`` が生成されます。コマンドラインツールの起動方法とオプションは、ベンダーの配布物に付属する ``--help`` などの公式の案内で確認してください。
 
 生成したら、次の 2 点を確認します。
 

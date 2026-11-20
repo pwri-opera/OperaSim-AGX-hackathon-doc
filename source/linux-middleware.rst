@@ -11,7 +11,7 @@ ROS 2 と開発ツールの準備
 
 Ubuntu 22.04 を用意し、 `ROS 2 Humble の Ubuntu 向けインストール手順 <https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html>`_ に従って apt リポジトリを設定し、 ``ros-humble-desktop`` をインストールしてください。
 
-続いて開発ツールと依存パッケージをインストールします。以下のパッケージ構成と後述するリポジトリ・ブランチ、ビルド対象は、このリポジトリの ``docker-hackathon-sample/Dockerfile`` をもとにしています。
+続いて開発ツールと依存パッケージをインストールします。ここで使うパッケージ、後述するクローン先とブランチ、ビルド対象は、シミュレータ本体の ``hackathon`` ブランチにある ``docker-hackathon-sample/Dockerfile`` をもとにしています。
 
 .. code-block:: bash
 
@@ -46,11 +46,11 @@ Ubuntu 22.04 を用意し、 `ROS 2 Humble の Ubuntu 向けインストール�
    git clone -b main https://github.com/pwri-opera/gnss_localizer_ros2.git
 
 
-サンプルの経路データをワークスペース直下にコピーします。このリポジトリをまだ取得していない場合は、先にクローンしてください。
+シミュレータ本体から、サンプルの経路データをワークスペース直下にコピーします。まだ本体を取得していない場合は、下の ``git clone`` を実行してください。すでに ``hackathon`` ブランチを取得済みなら、クローンは不要です。保存場所が異なる場合は、コピー元のパスを置き換えてください。
 
 .. code-block:: bash
 
-   git clone https://github.com/pwri-opera/OperaSim-AGX.git "$HOME/OperaSim-AGX"
+   git clone -b hackathon https://github.com/pwri-opera/OperaSim-AGX.git "$HOME/OperaSim-AGX"
    cp "$HOME/OperaSim-AGX/docker-hackathon-sample/waypoints.csv" "$HOME/opera-ws/waypoints.csv"
 
 ``rosdep`` が未初期化の場合だけ、 ``sudo rosdep init`` を実行します。その後、依存関係を解決してビルドします。
@@ -67,7 +67,7 @@ Ubuntu 22.04 を用意し、 `ROS 2 Humble の Ubuntu 向けインストール�
        ic120_unity com3_msgs ros_tcp_endpoint
    source "$HOME/opera-ws/install/setup.bash"
 
-``com3_msgs`` は建機固有のメッセージ型です。endpoint だけでなく、このパッケージもビルドし、ROS コマンドを使うすべてのターミナルでワークスペースの環境を読み込んでください。
+``com3_msgs`` は、建機固有のメッセージ型を定義するパッケージです。 ``ros_tcp_endpoint`` と一緒にビルドし、ROS コマンドを使うすべてのターミナルでワークスペースの環境を読み込んでください。
 
 endpoint と自律制御の起動
 --------------------------
@@ -99,6 +99,8 @@ Windows 側で ROS 接続を行い、Sim Speed を x1.0 にして Start Simulati
 zx200 が掘削・積み込みを行い、そのあと ic120 が運搬・排土・帰還を行います。Docker での通し実行と進行の確認方法は :doc:`sample-run` 、コードの編集と再ビルドは :doc:`development` を参照してください。
 
 ホスト上と Docker の endpoint を同時に起動すると、TCP 10000 番ポートが競合します。切り替えるときは、先に起動中の endpoint を ``Ctrl+C`` で停止してください。
+
+.. _check-ros-tcp-connection:
 
 IP アドレスとファイアウォールの確認
 -------------------------------------

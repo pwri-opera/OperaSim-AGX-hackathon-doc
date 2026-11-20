@@ -42,14 +42,14 @@ ROS 接続先 IP アドレスを変更できるか（重要）
 
 2. AGX のライセンスファイル（ ``.lfx`` または ``.lic`` ）を、実行ファイルがあるフォルダか、その下のフォルダに置きます。詳しくは :doc:`agx-license` を参照してください。プレイヤーはカレントディレクトリから再帰的にライセンスを探すので、エクスプローラーで exe をダブルクリックするのではなく、exe があるフォルダをカレントディレクトリにして起動するのが確実です。
 3. ROS の接続先が、上の条件を満たしているかを確認します。満たしていない場合は、ルート B のソースビルドに切り替えてください。
-4. 起動すると、セットアップ用の画面が表示されます。操作方法は :doc:`simulator-operation` を参照してください。
+4. PowerShell で実行ファイルのあるフォルダに移動し、プレイヤーを起動します。次の例のフォルダと ``OperaSim.exe`` は、実際の場所とファイル名に置き換えてください。
 
-PowerShell で、exe があるフォルダに移動してから起動すると確実です（ ``OperaSim.exe`` は、実際の exe 名に置き換えてください）。
+   .. code-block:: powershell
 
-.. code-block:: powershell
+      Set-Location C:\work\OperaSim-AGX
+      .\OperaSim.exe
 
-   Set-Location C:\work\OperaSim-AGX   # exe があるフォルダ
-   .\OperaSim.exe
+   セットアップ画面が表示されたら、 :doc:`simulator-operation` に進んでください。
 
 DLL が不足して起動できない場合は、 :doc:`troubleshooting` を参照してください（ ``MSVCP`` や ``VCRUNTIME`` に関するエラーであれば、Visual C++ 再頒布可能パッケージをインストールすると解決することがあります）。
 
@@ -59,30 +59,24 @@ DLL が不足して起動できない場合は、 :doc:`troubleshooting` を参�
 ソースの入手と Unity プロジェクトの起動
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. Git for Windows をインストールし、リポジトリをクローンします。パスには、日本語や空白を含まない短い場所を使うことをおすすめします。次の PowerShell の例では、先に ``C:\work`` を作っています。
+1. Git for Windows をインストールし、シミュレータ本体の ``hackathon`` ブランチをクローンします。保存先には、日本語や空白を含まない短いパスをおすすめします。
 
    .. code-block:: powershell
 
       New-Item -ItemType Directory -Force C:\work | Out-Null
-      git clone https://github.com/pwri-opera/OperaSim-AGX.git C:\work\OperaSim-AGX
+      git clone -b hackathon https://github.com/pwri-opera/OperaSim-AGX.git C:\work\OperaSim-AGX
 
-   ハッカソンで別の URL が指定されている場合は、そちらを使ってください。
+   ハッカソン運営から別の URL やブランチを指定された場合は、そちらを使ってください。
 2. Unity Hub をインストールします（公式サイト： `https://unity.com/download <https://unity.com/download>`_ ）。続いて、Unity **2022.3.62f3** をインストールします（ ``ProjectVersion.txt`` で指定されているバージョンです）。Unity Hub の一覧に表示されない場合は、 `Unity Editor Archive <https://unity.com/releases/editor/archive>`_ から 2022.3.62f3 を入手してください。
 3. Unity Hub で「Add」→「Add project from disk」を選び、クローンしたフォルダを追加して、2022.3.62f3 で開きます。初回は、パッケージの解決とインポートに時間がかかります。
 4. Unity Editor を使うには、Unity のライセンスが必要です。どのプランや契約形態のライセンスを使えるかは、Unity の契約条件に従います。このマニュアルでは、特定のプランが使えるとは案内しません。
 5. ``Packages/manifest.json`` にある Git 依存パッケージ（ ``com.unity.robotics.ros-tcp-connector`` と ``com.unity.robotics.urdf-importer`` ）は、自動的に解決されます。バージョンは ``Packages/packages-lock.json`` に固定されているので、更新せずにそのまま使ってください。
-6. プロジェクトを開いたら、Project ウィンドウから ``Assets/Scenes/GameScene.unity`` を開きます（ ``EditorBuildSettings`` で有効になっているシーンは、これだけです）。README に出てくる ``MainScene.unity`` は古いシーンなので、使いません。
+6. プロジェクトを開いたら、Project ウィンドウから ``Assets/Scenes/GameScene.unity`` を開きます。 ``EditorBuildSettings`` で有効なのはこのシーンだけです。 `OperaSim-AGX 本体の README「実行方法」 <https://github.com/pwri-opera/OperaSim-AGX/blob/hackathon/README.md#実行方法>`_ にある ``MainScene.unity`` は、この手順では使いません。
 
 AGX ライセンスのアクティベーション（エディタ）
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-エディタで **AGXUnity > License > License Manager** を開きます。
-
-1. **License Id** と **Activation Password** を入力します。
-2. **License File Directory** に ``Assets/AGXUnity/Plugins/x86_64`` を指定します。この欄は、プロジェクト内のフォルダを表示するだけのラベルで、直接入力はできません。クリックするとフォルダ選択ダイアログが開くので、そこから選びます。未設定の場合や、存在しないフォルダを指定した場合は、 ``Assets`` 直下に保存されます。このガイドでは、 ``Assets/AGXUnity/Plugins/x86_64`` を保存先とします。
-3. **Activate** を押します。生成された ``agx.lfx`` が、指定したフォルダに保存されます。
-
-詳しくは :doc:`agx-license` を参照してください。同じ PC でアクティベーション済みのライセンスは、条件が許せば、エディタとビルド済みプレイヤーの両方で使えます。
+この PC に有効な AGX ライセンスがあるかを :ref:`agx-editor-activation` の手順で確認します。有効なライセンスがなければ、同じ手順でアクティベーションしてください。
 
 ROS 接続先の設定
 ~~~~~~~~~~~~~~~~~
