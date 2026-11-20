@@ -83,7 +83,7 @@ Linux PC のターミナルで、環境を読み込んでから実行します�
 - ``/zx200/odom_pose`` 、 ``/zx200/global_pose`` （ ``nav_msgs/msg/Odometry`` ）
 - ``/clock`` （シミュレーション時計。後述します）
 
-指令用のトピックの末尾には、 ``front_cmd`` 、 ``track_cmd`` 、 ``cmd_vel`` 、 ``rot_dump_cmd`` 、 ``track_volume_cmd`` 、 ``blade_cmd`` 、 ``emg_stop_cmd`` があります。機体と制御モードごとの対応は、 `OperaSim-AGX 本体の README にある対応表 <https://github.com/pwri-opera/OperaSim-AGX/blob/hackathon/README.md#指令値の設定>`_ を参照してください。実際のトピック名とメッセージ型は、この章の確認コマンドで調べてください。
+指令用のトピックには、 ``front_cmd`` 、 ``track_cmd`` 、 ``cmd_vel`` 、 ``rot_dump_cmd`` 、 ``track_volume_cmd`` 、 ``blade_cmd`` などがあります。機体と制御モードごとの対応は、 `OperaSim-AGX 本体の README にある対応表 <https://github.com/pwri-opera/OperaSim-AGX/blob/hackathon/README.md#指令値の設定>`_ を参照してください。実際のトピック名とメッセージ型は、この章の確認コマンドで調べてください。
 
 フィードバックを読むだけのノードの例
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -137,23 +137,6 @@ Linux PC のターミナルで、環境を読み込んでから実行します�
 .. code-block:: bash
 
    python3 "$HOME/opera-ws/joint_feedback.py"
-
-非常停止
-----------
-
-各建機は、 ``/<機体名>/emg_stop_cmd`` （ ``std_msgs/msg/Bool`` ）を購読していて、 ``true`` を受け取ると制御を無効にします。これは指令を無効にするもので、機械が瞬時に固まるわけではありません。受信側は最後に受け取った値を保持するので、メッセージが届けば、 ``false`` を送るまで制御の無効状態が続きます。ただし、publish が確実に届く保証はありません。送ったあとは、建機が実際に止まったことを確認してください。
-
-.. code-block:: bash
-
-   # 制御の無効化を開始する（制御しているすべての機体の名前空間に送ります）
-   ros2 topic pub -1 /zx200/emg_stop_cmd std_msgs/msg/Bool "{data: true}"
-   ros2 topic pub -1 /ic120_0/emg_stop_cmd std_msgs/msg/Bool "{data: true}"
-
-   # 解除する（自律ノードを止めてから行ってください）
-   ros2 topic pub -1 /zx200/emg_stop_cmd std_msgs/msg/Bool "{data: false}"
-   ros2 topic pub -1 /ic120_0/emg_stop_cmd std_msgs/msg/Bool "{data: false}"
-
-機体名は、 ``ros2 topic list`` で確認してください。あわせて、自律ノード自体も止めておくのが確実です。
 
 シミュレーション時計についての注意
 ------------------------------------

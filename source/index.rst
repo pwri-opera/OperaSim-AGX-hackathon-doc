@@ -83,7 +83,7 @@ Windows 側のセットアップが終わったら、試したいことに合わ
    * - :doc:`windows-setup`
      - 配布バイナリを使う方法と、ソースから Unity プロジェクトをビルドする方法
    * - :doc:`simulator-operation`
-     - シミュレータの起動、カメラ操作、セーブ・ロード・リセット、安全な停止方法
+     - シミュレータの起動と終了、カメラ操作、セーブ・ロード・リセット
    * - :doc:`linux-middleware`
      - ホストへの ROS 2 の導入、ワークスペースのビルド、endpoint の起動、IP アドレスとファイアウォールの確認
    * - :doc:`machines-and-field`
@@ -95,7 +95,7 @@ Windows 側のセットアップが終わったら、試したいことに合わ
    * - :doc:`scoring`
      - シミュレータの加点・減点項目と、正式な競技ルールの確認先
    * - :doc:`development`
-     - ホスト上の ``~/opera-ws`` での ROS 2 開発、トピックの確認、非常停止、シミュレーション時計の注意点
+     - ホスト上の ``~/opera-ws`` での ROS 2 開発、トピックの確認、シミュレーション時計の注意点
    * - :doc:`troubleshooting`
      - 症状別の確認ポイントと対処
    * - :doc:`building-docs`
