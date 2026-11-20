@@ -1,8 +1,8 @@
 ==============================================================
-ROS 2 ミドルウェアの開発（ホスト上のワークスペース）
+ZX200・IC120 の ROS 2 ミドルウェア開発
 ==============================================================
 
-この章では、 :doc:`linux-middleware` で作成した ``$HOME/opera-ws`` を使い、自分の ROS 2 ノードや設定を編集して再ビルドします。ソースは ``src/`` 、ビルド成果物は ``build/`` と ``install/`` 、ログは ``log/`` に保存されます。一連の動きを手軽にテストする Docker 環境は :doc:`sample-run` を参照してください。
+この章では、 :doc:`linux-middleware` で作成した ``$HOME/opera-ws`` を使い、油圧ショベル ZX200 とクローラダンプ IC120 の自律制御ノードや設定を編集して再ビルドします。ソースは ``src/`` 、ビルド成果物は ``build/`` と ``install/`` 、ログは ``log/`` に保存されます。
 
 サンプルのどこを変更するかを調べるときは、 :doc:`sample-implementation` のパッケージ構成とプログラムの流れを参照してください。
 
@@ -29,7 +29,7 @@ ROS 2 ミドルウェアの開発（ホスト上のワークスペース）
 
 ビルド後は、ノードを実行するターミナルで ``source "$HOME/opera-ws/install/setup.bash"`` を読み込み直し、ノードを再起動してください。依存パッケージに変更がない場合は、 ``colcon build --symlink-install --packages-select <pkg>`` で対象を絞れます。依存関係を変えた場合やパッケージを追加した場合は、 ``rosdep install --from-paths src --ignore-src --rosdistro humble -r -y`` を実行し、 ``--packages-up-to`` で依存パッケージもビルドします。
 
-サンプルの経路データは ``$HOME/opera-ws/waypoints.csv`` に置き、launch はワークスペース直下から実行します。列は ``id,pos_x,pos_y,pos_z,rot_x,rot_y,rot_z,rot_w,xy_goal_tol,des_lin_vel,state`` です。
+IC120 の経路データは ``$HOME/opera-ws/waypoints.csv`` に置き、起動コマンドはワークスペース直下で実行します。CSV の列は ``id,pos_x,pos_y,pos_z,rot_x,rot_y,rot_z,rot_w,xy_goal_tol,des_lin_vel,state`` です。
 
 例：チーム用の起動ファイルで荷台の保持時間を変える
 ----------------------------------------------------
@@ -77,18 +77,23 @@ Linux PC のターミナルで、環境を読み込んでから実行します�
 
    ros2 topic hz /zx200/odom_pose    # Ctrl+C で終了します
 
-建機の名前空間は GameObject 名から決まるため、シーンやセーブデータによって変わることがあります。必ず ``ros2 topic list`` で、実際の名前を確認してください。代表的なトピックは、次のとおりです。
+ZX200 と IC120 の ROS 名前空間は、それぞれの GameObject 名で決まります。シーンやセーブデータによって変わるため、実際の名前は ``ros2 topic list`` で確認してください。サンプルの代表的なトピックは次のとおりです。
 
-- ``/zx200/joint_states`` 、 ``/ic120_0/joint_states`` （ ``sensor_msgs/msg/JointState`` ）。ブルドーザだけは、 ``/joint_state`` と単数形になる実装の違いがあります。
+- ``/zx200/joint_states`` 、 ``/ic120_0/joint_states`` （ ``sensor_msgs/msg/JointState`` ）
 - ``/zx200/odom_pose`` 、 ``/zx200/global_pose`` （ ``nav_msgs/msg/Odometry`` ）
 - ``/clock`` （シミュレーション時計。後述します）
 
-指令用のトピックには、 ``front_cmd`` 、 ``track_cmd`` 、 ``cmd_vel`` 、 ``rot_dump_cmd`` 、 ``track_volume_cmd`` 、 ``blade_cmd`` などがあります。機体と制御モードごとの対応は、 `OperaSim-AGX 本体の README にある対応表 <https://github.com/pwri-opera/OperaSim-AGX/blob/hackathon/README.md#指令値の設定>`_ を参照してください。実際のトピック名とメッセージ型は、この章の確認コマンドで調べてください。
+ZX200 と IC120 が受け取る指令トピックは、機体の制御モードによって異なります。
+
+- **ZX200**： ``front_cmd`` （作業機・旋回）、 ``track_cmd`` （左右のクローラ）、 ``cmd_vel`` （車体の速度）
+- **IC120**： ``rot_dump_cmd`` （旋回・荷台）、 ``track_cmd`` （左右のクローラ）、 ``track_volume_cmd`` （走行操作量）、 ``cmd_vel`` （車体の速度）
+
+機体ごとの説明は、シミュレータ本体の README の `油圧ショベル <https://github.com/pwri-opera/OperaSim-AGX/blob/hackathon/README.md#油圧ショベル>`_ と `クローラダンプ <https://github.com/pwri-opera/OperaSim-AGX/blob/hackathon/README.md#クローラダンプ>`_ を参照してください。実際のトピック名とメッセージ型は、上の確認コマンドで調べてください。
 
 フィードバックを読むだけのノードの例
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-指令は送らずに、建機の状態だけを確認したい場合の最小限の例として、 ``joint_feedback.py`` をワークスペースの直下に置きます。保存先は ``~/opera-ws/joint_feedback.py`` です。
+ZX200 の関節状態だけを読み取る例です。次のコードを ``~/opera-ws/joint_feedback.py`` に保存します。実際の名前空間が ``/zx200`` と異なる場合は、購読先のトピック名を置き換えてください。
 
 .. code-block:: python
 

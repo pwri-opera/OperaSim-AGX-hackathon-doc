@@ -95,7 +95,7 @@ Windows 側のセットアップが終わったら、試したいことに合わ
    * - :doc:`scoring`
      - シミュレータの加点・減点項目と、正式な競技ルールの確認先
    * - :doc:`development`
-     - ホスト上の ``~/opera-ws`` での ROS 2 開発、トピックの確認、シミュレーション時計の注意点
+     - ZX200・IC120 の ROS 2 開発、トピックの確認、シミュレーション時計の注意点
    * - :doc:`troubleshooting`
      - 症状別の確認ポイントと対処
    * - :doc:`building-docs`
