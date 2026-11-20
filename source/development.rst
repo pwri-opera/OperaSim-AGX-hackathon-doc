@@ -31,6 +31,35 @@ ROS 2 ミドルウェアの開発（ホスト上のワークスペース）
 
 サンプルの経路データは ``$HOME/opera-ws/waypoints.csv`` に置き、launch はワークスペース直下から実行します。列は ``id,pos_x,pos_y,pos_z,rot_x,rot_y,rot_z,rot_w,xy_goal_tol,des_lin_vel,state`` です。
 
+例：チーム用の起動ファイルで荷台の保持時間を変える
+----------------------------------------------------
+
+サンプルが :ref:`sample-run-checklist` のとおり一巡したら、起動ファイルをコピーして、小さな変更を試せます。ここではシミュレータ上で、IC120 が荷台を上げたまま保持する時間を既定の 5.0 秒から 6.0 秒に変えます。ソース本体やインストール済みのファイルは書き換えません。
+
+1. ROS 2 とワークスペースの環境を読み込んだ端末で、インストール済みの起動ファイルをコピーします。Docker を使う場合も操作は同じですが、コピー先にはホストと共有され、コンテナを作り直しても残るディレクトリを選んでください。運営配布イメージでは指定された作業場所を使います。
+
+   .. code-block:: bash
+
+      team_dir=$(mktemp -d "$HOME/opera-team.XXXXXX")
+      cp "$(ros2 pkg prefix --share task_manager)/launch/hackathon_sample.launch.py" \
+        "$team_dir/team_sample.launch.py"
+      printf '%s\n' "$team_dir/team_sample.launch.py"
+
+2. 表示されたファイルをエディタで開きます。 ``executable = 'dump_release_controller'`` の ``Node`` にある ``parameters`` を、次のように変更します。他のノードの設定は変更しません。
+
+   .. code-block:: python
+
+      parameters=[{'use_sim_time': True, 'wait_seconds': 6.0}]
+
+3. :ref:`simulator-safe-stop` の手順で前回の実行を止め、初期状態に戻します。endpoint を起動し直し、Windows 側の ROS 接続と状態の受信を確認してください。経路 CSV があるワークスペース直下（ホスト版なら ``~/opera-ws`` 、このマニュアルの Docker サンプルなら ``/ws`` ）で、通常の launch の代わりにコピーを起動します。新しい端末を使う場合は、ROS 2 とワークスペースの環境を読み込み、下の引数を手順 1 で表示されたファイルの絶対パスに置き換えてください。起動ファイルの変更だけなので、再ビルドは不要です。
+
+   .. code-block:: bash
+
+      ros2 launch "$team_dir/team_sample.launch.py"
+
+4. 同じ ROS 2 環境の別端末で ``ros2 param get /dump_release_controller wait_seconds`` を実行し、値が ``6.0`` になっていることを確認します。シミュレータで排土と帰還まで進み、タスクマネージャに完了ログが出ることも確認します。
+5. 元に戻すときは、安全に停止して初期状態に戻し、通常の ``ros2 launch task_manager hackathon_sample.launch.py`` で起動します。同じコマンドで ``wait_seconds`` が元の値（参照した版では ``5.0`` ）に戻ったことを確認してください。変更をチームで使う場合は、コピーした起動ファイルをチームのリポジトリで管理します。
+
 トピックとメッセージの確認
 ----------------------------
 

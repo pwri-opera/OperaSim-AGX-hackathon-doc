@@ -126,3 +126,19 @@ GUI と Docker（sample-run を使う場合）
    * - 設定値が反映されない
      - ``SettingData.json`` は、 ``persistentDataPath`` （ ``%USERPROFILE%\AppData\LocalLow\VMC Motion Technologies\PWRI_KenkiSimulator`` ）に保存される
      - ROS の接続先 IP アドレスは、このファイルを書き換えても変わりません。接続の設定は、プレハブとシーンに保存されている値が使われます。
+
+.. _participant-support:
+
+開催前に解決しないとき
+----------------------
+
+事前準備の案内が見つからない、指定環境を用意できない、またはサンプルが完了しない場合は、 `土木研究所の募集要項「問い合わせ先」 <https://www.pwri.go.jp/team/advanced/opera-hackathon-2.html>`_ に掲載されている先端技術チーム（ ``sentan@pwri.go.jp`` ）に連絡してください。参加者向けの案内に別の窓口がある場合は、そちらを使ってください。
+
+動作について問い合わせるときは、次の情報を添えてください。
+
+- Windows・Linux のバージョンと、使用した構成（運営配布イメージ、公開 Docker サンプル、ホスト版のいずれか）。
+- シミュレータの配布版または Git コミット、Docker イメージのタグまたはイメージ ID。ソースからビルドした場合は、分かる範囲でサンプル側のコミットも記載します。
+- :ref:`sample-run-checklist` で最後に通過した項目、失敗した操作、再現手順、表示されたエラー。
+- :doc:`simulator-operation` の「ログの場所」にある Unity の ``Player.log`` または ``Editor.log`` と、Linux 側で endpoint とサンプルを起動した端末の出力。採点の相談では、 :doc:`scoring` にある採点ログも添えます。
+
+ログやスクリーンショットを共有する前に、ライセンスファイル、アクティベーション用のパスワードなどの認証情報が含まれていないことを確認してください。
