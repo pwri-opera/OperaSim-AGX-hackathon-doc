@@ -293,6 +293,26 @@ IC120：経路 CSV と Nav2 の連携
 
 CSV の位置と姿勢は移動目標、 ``state`` はその地点で行う処理を表します。
 
+**座標系と単位**：位置は ROS 2 の ``map`` フレームで表し、単位はメートル（m）です。 ``map`` はフィールドに固定された座標系で、IC120 の現在の向きに合わせて回転する機体座標系ではありません。このサンプルでは ``map`` と ``world`` の原点と軸が一致します。
+
+.. list-table::
+   :header-rows: 1
+
+   * - CSV の列
+     - Unity ワールド座標との対応
+     - 俯瞰画像での向き
+   * - ``pos_x`` （m）
+     - Unity の ``+Z`` 方向
+     - 上
+   * - ``pos_y`` （m）
+     - Unity の ``-X`` 方向
+     - 左
+   * - ``pos_z`` （m）
+     - Unity の ``+Y`` 方向（高さ）
+     - 真上からの投影には使わない
+
+ROS 側の軸は右手系の FLU（Forward、Left、Up）です。姿勢の ``rot_x`` 、 ``rot_y`` 、 ``rot_z`` 、 ``rot_w`` はクォータニオンの成分で、単位はありません。度やラジアンで指定する角度とは異なります。
+
 .. list-table::
    :header-rows: 1
    :widths: 1 2 5
@@ -309,6 +329,11 @@ CSV の位置と姿勢は移動目標、 ``state`` はその地点で行う処�
    * - ``2``
      - ホーム・積込場所
      - ``/ic120/arrived_home`` を通知し、index と許可フラグを初期化します。
+
+.. figure:: images/machines/ic120-waypoints.webp
+   :alt: 競技フィールドの真上の画像に、左下の積み込み場所から右上の排土場所までの往路を水色の実線、復路をオレンジの破線で重ねた図
+
+   IC120 の `サンプル経路 CSV <https://github.com/pwri-opera/OperaSim-AGX/blob/00484f17d9a15d27cb0cc9091c9af8826b73893c/docker-hackathon-sample/waypoints.csv>`_ の 41 地点。ROS の ``map`` 座標系の ``pos_x`` と ``pos_y`` を Unity の真上からの画像に投影し、CSV の順に結びました。出発地点（ID 0）と帰還地点（ID 40）は画像上でほぼ重なります。線は Nav2 が計画した経路や実際の走行軌跡ではありません。
 
 ``/ic120/start_transport`` を受けると搬送を許可し、先頭がホームとして使われる構成では index 1 から走行を開始します。 ``_on_timer()`` が ``_send_goal()`` を呼び、CSV の姿勢を ``map`` フレームの ``NavigateToPose.Goal`` にして、Nav2 の ``/ic120_0/navigate_to_pose`` へ非同期で送ります。この Action 名はサンプルの launch が指定しています。
 
