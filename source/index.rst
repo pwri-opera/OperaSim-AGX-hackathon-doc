@@ -46,6 +46,7 @@ OperaSim-AGX ハッカソン セットアップガイド
    windows-setup
    simulator-operation
    linux-middleware
+   machines-and-field
    sample-run
    sample-implementation
    scoring
@@ -72,6 +73,8 @@ OperaSim-AGX ハッカソン セットアップガイド
      - シミュレータの起動、カメラ操作、セーブ・ロード・リセット、安全な停止方法
    * - :doc:`linux-middleware`
      - ホストへの ROS 2 の導入、ワークスペースのビルド、endpoint の起動、IP アドレスとファイアウォールの確認
+   * - :doc:`machines-and-field`
+     - ZX200・IC120 の作業能力と、土木研究所の建設 DX 実験フィールドでの実機実験
    * - :doc:`sample-run`
      - Docker 環境の準備と、Windows と接続してサンプルシナリオを動かす通し手順
    * - :doc:`sample-implementation`
